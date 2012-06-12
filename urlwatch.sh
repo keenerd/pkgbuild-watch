@@ -11,6 +11,7 @@ fi
 urlfile="$1"
 diffargs=""
 cache="$HOME/.urlwatch/cache"
+mkdir -p "$cache"
 
 COLOR1='\e[1;32m'
 ENDC='\e[0m'
@@ -23,7 +24,7 @@ nap()  # none : none
     done
 }
 
-urlcheck()  # url : none
+urlcheck()  # url : pretty print
 {
     urlhash=$(sha1sum <<< "$1" | cut -d ' ' -f 1)
     temp=$(tempname uw)

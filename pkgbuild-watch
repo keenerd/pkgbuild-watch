@@ -5,13 +5,12 @@ if [[ $# == 0 || $1 == '-h' || $1 == '--help' ]]; then
     echo
     echo "path is searched for pkgbuilds"
     echo "if you have multiple paths (e.g, abs and svn)"
-    echo "create a dummy directory with symlinks to both"
+    echo "create a dummy directory with symlinks to each"
     echo
     echo "all pkgbuilds are searched for a _watch variable"
     echo "watch urls are added to the urlfile"
     echo "'none' to skip the check, 'package' to watch the distro page"
-    #echo
-    #echo "changes to the url file must be confirmed in vimdiff"
+    echo ""
     exit
 fi
 
@@ -19,8 +18,7 @@ fi
 pkgbuild_path="$1"
 urlfile="$HOME/.urlwatch/pkgbuild-watch-urls.txt"
 tempurl="$(tempname p-w)"
-
-mkdir -p "$HOME/.urlwatch/cache"
+mkdir -p "$HOME/.urlwatch"
 
 trap 'rm -f $tempurl*' INT TERM EXIT
 
@@ -44,16 +42,10 @@ do
     if [[ "$_watch" != "" ]]; then
         echo "$_watch" >> "$tempurl"
     fi
-done <<< "$(find -L "$pkgbuild_path" -name 'PKGBUILD')"
+done < <(find -L "$pkgbuild_path" -name 'PKGBUILD')
 
 sort -u "$tempurl" > "$tempurl.2"
-#if ! diff -q "$tempurl.2" "$urlfile" ; then
-#    vimdiff "$tempurl.2" "$urlfile"
-#fi
-# vimdiff is not really needed with a custom urlfile
 cp "$tempurl.2" "$urlfile"
 
-#urlwatch --urls="$urlfile" --hooks="$hookfile" 2> /dev/null | less
-# urlwatch kind of blows, lets use a compatible bash script instead
 urlwatch.sh "$urlfile" | less -R
 
