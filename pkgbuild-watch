@@ -1,0 +1,59 @@
+#!/bin/bash
+
+if [[ $# == 0 || $1 == '-h' || $1 == '--help' ]]; then
+    echo "use: pkgbuild-watch /path/to/pkgbuilds"
+    echo
+    echo "path is searched for pkgbuilds"
+    echo "if you have multiple paths (e.g, abs and svn)"
+    echo "create a dummy directory with symlinks to both"
+    echo
+    echo "all pkgbuilds are searched for a _watch variable"
+    echo "watch urls are added to the urlfile"
+    echo "'none' to skip the check, 'package' to watch the distro page"
+    #echo
+    #echo "changes to the url file must be confirmed in vimdiff"
+    exit
+fi
+
+
+pkgbuild_path="$1"
+urlfile="$HOME/.urlwatch/pkgbuild-watch-urls.txt"
+tempurl="$(tempname p-w)"
+
+mkdir -p "$HOME/.urlwatch/cache"
+
+trap 'rm -f $tempurl*' INT TERM EXIT
+
+while read pkgbuild
+do
+    if [[ "$pkgbuild" == */repos/* ]]; then
+        continue
+    fi
+    unset _watch
+    source "$pkgbuild"
+    if [[ "$_watch" == "none" ]]; then
+        continue
+    fi
+    if [[ "$_watch" == "package" ]]; then
+	[ -z "$pkgbase" ] && pkgbase="$pkgname"
+        _watch=$(expac -S "http://www.archlinux.org/packages/%r/$(arch)/%n/" $pkgbase)
+    fi
+    if [[ "$_watch" == "" ]]; then
+        _watch="$url"
+    fi
+    if [[ "$_watch" != "" ]]; then
+        echo "$_watch" >> "$tempurl"
+    fi
+done <<< "$(find -L "$pkgbuild_path" -name 'PKGBUILD')"
+
+sort -u "$tempurl" > "$tempurl.2"
+#if ! diff -q "$tempurl.2" "$urlfile" ; then
+#    vimdiff "$tempurl.2" "$urlfile"
+#fi
+# vimdiff is not really needed with a custom urlfile
+cp "$tempurl.2" "$urlfile"
+
+#urlwatch --urls="$urlfile" --hooks="$hookfile" 2> /dev/null | less
+# urlwatch kind of blows, lets use a compatible bash script instead
+urlwatch.sh "$urlfile" | less -R
+
