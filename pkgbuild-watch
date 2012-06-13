@@ -17,10 +17,10 @@ fi
 
 pkgbuild_path="$1"
 urlfile="$HOME/.urlwatch/pkgbuild-watch-urls.txt"
-tempurl="$(tempname p-w)"
+tempurl="$(mktemp)"
 mkdir -p "$HOME/.urlwatch"
 
-trap 'rm -f $tempurl*' INT TERM EXIT
+trap 'rm -f $tempurl{,.2}' INT TERM EXIT
 
 while read pkgbuild
 do

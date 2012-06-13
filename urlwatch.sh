@@ -27,7 +27,7 @@ nap()  # none : none
 urlcheck()  # url : pretty print
 {
     urlhash=$(sha1sum <<< "$1" | cut -d ' ' -f 1)
-    temp=$(tempname uw)
+    temp=$(mktemp)
     curl -s --connect-timeout 10 "$1" > "$temp"
     html2text -o "$temp.txt" "$temp"
     if [ ! -e "$cache/$urlhash" ]; then
@@ -40,8 +40,8 @@ urlcheck()  # url : pretty print
         # echo is atomic, fine for multithreaded stuff
         echo -e "${COLOR1}${1}${ENDC}\n$(cat $temp.diff)\n\n"
     fi
-    rm -rf $temp
-    rm -rf $temp{.txt,.diff}
+    rm -f $temp
+    rm -f $temp{.txt,.diff}
 }
 
 while read line; do
