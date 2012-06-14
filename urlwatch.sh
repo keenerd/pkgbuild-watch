@@ -29,6 +29,11 @@ urlcheck()  # url : pretty print
     urlhash=$(sha1sum <<< "$1" | cut -d ' ' -f 1)
     temp=$(mktemp)
     curl -s --connect-timeout 10 "$1" > "$temp"
+    if [ ! -s "$temp" ]; then
+        # failure, don't bother anyone with the diff
+        rm -f "$temp"
+        return
+    fi
     html2text -o "$temp.txt" "$temp"
     if [ ! -e "$cache/$urlhash" ]; then
         cp "$temp.txt" "$cache/$urlhash"
