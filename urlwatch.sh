@@ -45,8 +45,7 @@ urlcheck()  # url : pretty print
         # echo is atomic, fine for multithreaded stuff
         echo -e "${COLOR1}${1}${ENDC}\n$(cat $temp.diff)\n\n"
     fi
-    rm -f $temp
-    rm -f $temp{.txt,.diff}
+    rm -f $temp{,.txt,.diff}
 }
 
 while read line; do
