@@ -34,7 +34,7 @@ do
     fi
     if [[ "$_watch" == "package" ]]; then
 	[ -z "$pkgbase" ] && pkgbase="$pkgname"
-        _watch=$(expac -S "http://www.archlinux.org/packages/%r/$(arch)/%n/" $pkgbase)
+        _watch=$(expac -S "http://www.archlinux.org/packages/%r/$(uname -m)/%n/" $pkgbase)
     fi
     if [[ "$_watch" == "" ]]; then
         _watch="$url"
