@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if (( $# == 0  )) || [[ $1 == @(-h|--help) ]]; then
+if (( ! $# )) || [[ $1 == @(-h|--help) ]]; then
     echo "use: pkgbuild-watch /path/to/pkgbuilds"
     echo
     echo "path is searched for pkgbuilds"
