@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ $# == 0 || $1 == '-h' || $1 == '--help' ]]; then
+if (( ! $# )) || [[ $1 == @(-h|--help) ]]; then
     echo "use: pkgbuild-watch /path/to/pkgbuilds"
     echo
     echo "path is searched for pkgbuilds"
@@ -15,31 +15,31 @@ if [[ $# == 0 || $1 == '-h' || $1 == '--help' ]]; then
 fi
 
 
-pkgbuild_path="$1"
-urlfile="$HOME/.urlwatch/pkgbuild-watch-urls.txt"
-tempurl="$(mktemp)"
+pkgbuild_path=$1
+urlfile=$HOME/.urlwatch/pkgbuild-watch-urls.txt
+tempurl=$(mktemp)
 mkdir -p "$HOME/.urlwatch"
 
-trap 'rm -f $tempurl{,.2}' INT TERM EXIT
+trap 'rm -f "$tempurl"{,.2}' INT TERM EXIT
 
 while read pkgbuild
 do
-    if [[ "$pkgbuild" == */repos/* ]]; then
+    if [[ $pkgbuild == */repos/* ]]; then
         continue
     fi
     unset _watch
     source "$pkgbuild"
-    if [[ "$_watch" == "none" ]]; then
+    if [[ $_watch == "none" ]]; then
         continue
     fi
-    if [[ "$_watch" == "package" ]]; then
-	[ -z "$pkgbase" ] && pkgbase="$pkgname"
-        _watch=$(expac -S "http://www.archlinux.org/packages/%r/$(uname -m)/%n/" $pkgbase)
+    if [[ $_watch == "package" ]]; then
+	[[ -z $pkgbase ]] && pkgbase=$pkgname
+        _watch=$(expac -S "http://www.archlinux.org/packages/%r/$(uname -m)/%n/" "$pkgbase")
     fi
-    if [[ "$_watch" == "" ]]; then
-        _watch="$url"
+    if [[ -z $_watch ]]; then
+        _watch=$url
     fi
-    if [[ "$_watch" != "" ]]; then
+    if [[ -n $_watch ]]; then
         echo "$_watch" >> "$tempurl"
     fi
 done < <(find -L "$pkgbuild_path" -name 'PKGBUILD')
