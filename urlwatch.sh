@@ -34,7 +34,7 @@ urlcheck()  # url : pretty print
         rm -f "$temp"
         return
     fi
-    html2text -o "$temp.txt" "$temp"
+    html2text "$temp" > "$temp.txt"
     if [ ! -e "$cache/$urlhash" ]; then
         cp "$temp.txt" "$cache/$urlhash"
     fi
